@@ -45,7 +45,7 @@ do
 
 	    echo "Optional arguments:"
 	    echo -e "  -d, -debug\tBuild in DEBUG mode."
-	    echo -e "  -r, -release\tBuild in RLEASE mode."
+	    echo -e "  -r, -release\tBuild in RELEASE mode."
 	    echo -e "  -t, -test\tBuild tests."
 	    echo -e "  -c, -clean\tRemove the CMakeCache.txt file."
 	    echo -e "  -tc, -total-clean\tRemove the entire build directory."
