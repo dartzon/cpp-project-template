@@ -25,15 +25,15 @@ do
 	    ;;
 
 	-d|-debug)
-	    let $_build_mode="debug"
+	    _build_mode="debug"
 	    ;;
 
 	-r|-release)
-	    let $_build_mode="release"
+	    _build_mode="release"
 	    ;;
 
 	-t|-test)
-	    let $_test_mode="ON"
+	    _test_mode="ON"
 	    ;;
 
 	-h|-help)
