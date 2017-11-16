@@ -36,7 +36,7 @@ Running the `build.sh` script will build the project with the default parameters
 The building process can be customized with the following parameters:
 
 * `-d` or `-debug` build in DEBUG mode.
-* `-r` or `-release` build in RLEASE mode.
+* `-r` or `-release` build in RELEASE mode.
 * `-t` or `-test` build tests.
 * `-c` or `-clean` remove the CMakeCache.txt file.
 * `-tc` or `-total-clean` remove the entire build directory.
