@@ -13,3 +13,5 @@ list(REMOVE_ITEM PROJECT_SRC_LST ${PROJECT_SRC_DIR}/src/main.cpp)
 file(GLOB_RECURSE TEST_SOURCES ${PROJECT_SRC_LST} ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 add_executable(bin_name_tests ${TEST_SOURCES})
 target_link_libraries(bin_name_tests Catch)
+
+add_test(test_all bin_name_tests)
