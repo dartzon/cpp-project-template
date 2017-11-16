@@ -4,7 +4,7 @@ A basic template for C++ projects that use CMake and Clang
 
 ## Project organization
 
-![Alt text](screenshots/ProjectTree.png?raw=true "Project organization")
+[[https://github.com/dartzon/cpp-project-template/blob/screenshots/ProjectTree.png|alt=Project organization]]
 
 * `build/` is where the build files are stored.
 * `build/bin/` is where the built binaries are stored.
