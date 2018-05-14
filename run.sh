@@ -1,70 +1,142 @@
 #!/bin/bash
 
+# Replace spaces with \n = One command per line.
 _cmd_list=$(echo $* | tr ' ' '\n')
+_this_sh_path="$( cd "$(dirname "$0")" ; pwd -P )"
+_run_mode=""
+_run_arch=0
 _run_gdb=0
 _run_tests=0
-_should_run=1
 
 for _cmd in $_cmd_list
 do
 
     case $_cmd in
 
-	-d|-debug)
-	    let _run_gdb=1
-	    ;;
+	    -d|-debug)
+	        if [[ $_run_mode == "release" ]]; then
+		        echo "$0: Can't run debug and release builds at the same time."
+		        exit
+	        fi
 
-	-t|-test)
-	    let _run_tests=1
-	    ;;
+	        _run_mode="debug"
+	        ;;
 
-	-h|-help)
-	    echo "Usage: $0 [OPTION]..."
-	    echo "Run the program or the unit-tests."
+	    -gdb)
+	        if [[ $_run_mode == "release" ]]; then
+		        echo "$0: Can't debug and run release build at the same time."
+		        exit
+	        fi
 
-	    echo -e "Example: $0 -d\n"
+	        let _run_gdb=1
+	        _run_mode="debug"
+	        ;;
 
-	    echo "Optional arguments:"
-	    echo -e "  -d, -debug\tRun the program through the GDB debugger."
-	    echo -e "  -t, -test\tRun the unit-tests."
-	    echo -e "  -h, -help\tDisplay this help and exit."
-	    echo -e "\nReport bugs to: dartzon@gmail.com"
+	    -r|-release)
+	        if [[ $_run_mode == "debug" ]]; then
+		        echo "$0: Can't run debug and release builds at the same time."
+		        exit
+	        fi
 
-	    let _should_run=0
-	    break
-	    ;;
+	        _run_mode="release"
+	        ;;
 
-	*)
-	    echo "$0: invalid option -- '$_cmd'"
-	    echo -e "Try '$0 -h' for more information."
-	    let _should_run=0
-	    break
-	    ;;
+	    -a32)
+	        if [ $_run_arch == 64 ]; then
+		        echo "$0: Can't run 32-bit and 64-bit builds at the same time."
+		        exit
+	        fi
+
+	        let _run_arch=32
+	        ;;
+
+	    -a64)
+	        if [ $_run_arch == 32 ]; then
+		        echo "$0: Can't run 32-bit and 64-bit builds at the same time."
+		        exit
+	        fi
+
+	        let _run_arch=64
+	        ;;
+
+        -t|-test)
+	        let _run_tests=1
+	        ;;
+
+
+	    -h|-help)
+	        echo "Usage: $0 [OPTION]..."
+	        echo "Run the program or the unit-tests."
+	        echo -e "Run in release mode for 64-bit architecture if no option is specified.\n"
+
+	        echo -e "Example: $0 -d -a64\n"
+
+	        echo "Optional arguments:"
+	        echo -e "  -d, -debug\tRun in DEBUG mode."
+	        echo -e "  -gdb\tRun through the GDB debugger."
+	        echo -e "  -r, -release\tRun in RELEASE mode."
+	        echo -e "  -a32\tRun for 32-bit architecture"
+	        echo -e "  -a64\tRun for 64-bit architecture"
+	        echo -e "  -h, -help\tDisplay this help and exit."
+	        echo -e "\nReport bugs to: dartzon@gmail.com"
+
+	        exit
+	        ;;
+
+	    *)
+	        echo "$0: invalid option -- '$_cmd'"
+	        echo "Try '$0 -h' for more information."
+
+	        exit
+	        ;;
 
     esac
 
 done
 
-if [ $_should_run == 1 ]; then
+if [ -z $_run_mode ]; then
 
-    _path="."
+    _run_mode="release"
 
-    if [ $_run_tests == 1 ]; then
+fi
 
-	_path="tests"
+if [ $_run_arch == 0 ]; then
 
-    fi
+    _run_arch=64
 
-    _bin_name=$(cat $_path/CMakeLists.txt | grep add_executable | cut -d' ' -f1 | cut -d'(' -f2)
+fi
 
-    if [ $_run_gdb == 1 ]; then
+# Assemble the correct build dir path.
+_build_dir=$_this_sh_path/build/$_run_mode/$_run_arch
+if [ ! -e $_build_dir ]; then
 
-	gdb -tui -x .gdb-args --args build/bin/$_bin_name
+    echo "$0: no $_run_mode $_run_arch build found."
+    echo "Please build the project first with: 'build.sh'"
+    exit
 
-    else
+fi
 
-	./build/bin/$_bin_name
+if [ $_run_tests == 1 ]; then
 
-    fi
+    _cmake_path=$_this_sh_path/tests
+
+else
+
+    _cmake_path=$_this_sh_path
+
+fi
+
+_bin_name=$(cat $_cmake_path/CMakeLists.txt | grep "add_executable(" | \
+                cut -d'(' -f2 | cut -d'$' -f1 | tr -d [[:blank:]])
+
+_exe_path=$_build_dir/bin/$_bin_name
+
+if [ $_run_gdb == 1 ]; then
+
+    gdb -tui -x $_this_sh_path/.gdb-args --args $_exe_path
+
+else
+
+    $_exe_path
 
 fi
