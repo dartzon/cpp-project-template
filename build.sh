@@ -158,3 +158,6 @@ ln -sf ~/.dotfiles/not-installable/clang-tools-config/clang-tidy $_this_sh_path/
 # Run make.
 _jobs_count=$(grep -c ^processor /proc/cpuinfo)
 make -j$_jobs_count
+
+# Copy the compilation database to the project root for cquery.
+ln -sf $_build_dir/compile_commands.json $_this_sh_path/compile_commands.json
